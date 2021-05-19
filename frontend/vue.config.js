@@ -5,22 +5,22 @@ module.exports = {
         port: 8089,
         proxy: {
             '^/images': {
-                target: 'http://localhost:8080',
+                target: 'http://backend:8080',
                 ws: true,
                 changeOrigin: true
             },
             '^/auth': {
-                target: 'http://localhost:8080',
+                target: 'http://backend:8080',
                 ws: true,
                 changeOrigin: true
             },
             '^/api/test': {
-                target: 'http://localhost:8080',
+                target: 'http://backend:8080',
                 ws: true,
                 changeOrigin: true
             },
             '^/user':{
-                target: 'http://localhost:8080',
+                target: 'http://backend:8080',
                 ws: true,
                 changeOrigin: true
             }
