@@ -3,20 +3,32 @@ package pdl.backend;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 
 public final class Utils {
+
+    public static final Logger logger = LoggerFactory.getLogger(BackendApplication.class);
+
     /**
      * List all the .jpeg and .tif files for the given path
      *
@@ -127,5 +139,38 @@ public final class Utils {
         }
 
         throw new IllegalArgumentException("Class must be either int, float, double or long, you gave :" + c.getName());
+    }
+
+    
+
+
+    public static void readContent(Path path){
+        try{
+            Stream<Path> list = Files.list(path);
+            List<Path> paths = list.parallel().collect(Collectors.toList());
+            paths.stream().parallel().forEach(filePath -> {
+                if(Files.isDirectory(filePath)){
+                    readContent(filePath);
+                }
+                else{
+                    try{
+                        String fileName = filePath.toString().split("classes")[1];
+                        String content = readFile(filePath);
+                        logger.debug("File :" + fileName + " content: " + content);
+                    }
+                    catch (Exception e){
+                        logger.error("Unable to read file " + e.getMessage());
+                    }
+                }
+            });
+            list.close();
+        }catch(Exception e){
+            logger.error("Unable to read file " + e.getMessage());
+        }
+    }
+
+    private static String readFile(Path path) throws IOException{
+        byte[] bytes = Files.readAllBytes(path);
+        return "Read file";
     }
 }

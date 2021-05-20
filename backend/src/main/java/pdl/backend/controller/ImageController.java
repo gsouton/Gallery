@@ -4,10 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -220,13 +223,27 @@ public class ImageController {
      */
     @PostConstruct
     public void onStart() {
-        final String path = "/images/";
+        try{
+            final URI resource = getClass().getClassLoader().getResource("images").toURI();
+            FileSystem jarFileSystem = FileSystems.newFileSystem(resource, Collections.emptyMap());
+            String[] path = resource.toString().split("!", 2);
+            String reference = path[1].replace("!", "");
+            Utils.readContent(jarFileSystem.getPath(reference));
+
+        }catch(Exception e){
+            Utils.logger.error("Could not read from images " + e.getMessage());
+        }
+        /*final String path = "/images/";
         try {
             final Path path_of_resource = getPathOfResource(path);
             saveImagesFolder(path_of_resource);
         } catch (final IOException e1) {
             e1.printStackTrace();
-        }
+        }*/
+    }
+
+
+    public void readFolder(String relativePath) throws Exception{
     }
 
     @RequestMapping(value = "/images/{id}", params = "algorithm", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
