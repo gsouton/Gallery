@@ -2,8 +2,10 @@ package pdl.backend.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
+import javax.imageio.ImageIO;
 import javax.validation.Valid;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -50,6 +53,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import ch.qos.logback.classic.pattern.Util;
 import pdl.backend.AcceptedMediaTypes;
 import pdl.backend.AlgorithmManager;
 import pdl.backend.Utils;
@@ -223,27 +227,54 @@ public class ImageController {
      */
     @PostConstruct
     public void onStart() {
-        try{
-            final URI resource = getClass().getClassLoader().getResource("images").toURI();
-            FileSystem jarFileSystem = FileSystems.newFileSystem(resource, Collections.emptyMap());
-            String[] path = resource.toString().split("!", 2);
-            String reference = path[1].replace("!", "");
-            Utils.readContent(jarFileSystem.getPath(reference));
-
-        }catch(Exception e){
-            Utils.logger.error("Could not read from images " + e.getMessage());
-        }
-        /*final String path = "/images/";
+        String relativePath = "images/";
+        
+        URI uri = null;
         try {
-            final Path path_of_resource = getPathOfResource(path);
-            saveImagesFolder(path_of_resource);
-        } catch (final IOException e1) {
-            e1.printStackTrace();
-        }*/
+            uri = getClass().getClassLoader().getResource(relativePath).toURI();
+        } catch (URISyntaxException e) {
+            Utils.logger.error("Could not read URI from "+ relativePath + " " + e.getMessage());
+            e.printStackTrace();
+        }
+        try {
+			FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
+            String[] splitPath = uri.toString().split("!", 2);
+            String path = splitPath[1].replace("!", "");
+            Utils.logger.warn(path);
+            Utils.logger.warn(fileSystem.getPath(path).toString());
+            Utils.readContent(fileSystem.getPath(path), relativePath, imageRepository);
+		} catch (IOException e) {
+            Utils.logger.error("Could not initiate FileSystem from uri: " + uri.toString() + " " + e.getMessage());
+			e.printStackTrace();
+		}
+        //Path path = Paths.get(uri);
+        //Utils.logger.warn(fileSystem.toString());
+        //Utils.readContent(path, imageRepository);
+        /*
+         * } catch (Exception e) { Utils.logger.error("Could not open directory " +
+         * relativePath + e.getMessage()); }
+         */
+        /*
+         * try { URI path =
+         * getClass().getClassLoader().getResource(relativePath).toURI(); Set<String>
+         * filenames = Utils.listFiles(Path.of(path)); List<Image> publicImages =
+         * imageRepository.findAllPublic(); for (String name : filenames) { URI
+         * inputStream = getClass(). getClassLoader().getResource(); //byte[] content =
+         * inputStream.readAllBytes(); //String[] filename = name.split("\\."); //File f
+         * = File.createTempFile(filename[0], "." + filename[1]); Path path =
+         * Path.of(arg0) /// Utils.copyInputStreamToFile(inputStream, f); //MediaType
+         * type = Utils.typeOfFile(f); //String size = Utils.sizeOfImage(f);
+         * 
+         * //imageRepository.save(new Image(name, content, type, size));
+         * 
+         * } } catch (IOException e) { Utils.logger.error("Couldn't list files in " +
+         * e.getMessage()); } catch (URISyntaxException e) { // TODO Auto-generated
+         * catch block e.printStackTrace(); }
+         */
     }
 
+    public void readFolder(String relativePath) throws Exception {
 
-    public void readFolder(String relativePath) throws Exception{
     }
 
     @RequestMapping(value = "/images/{id}", params = "algorithm", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
@@ -290,7 +321,8 @@ public class ImageController {
 
     @RequestMapping(value = "/images/temp/", params = "algorithm", method = RequestMethod.POST, produces = MediaType.IMAGE_JPEG_VALUE)
     @ResponseBody
-    public ResponseEntity<?> executeAlgorithmOnGivenFile(@RequestParam final Map<String, String> algorithm, @RequestParam("file") final MultipartFile file) {
+    public ResponseEntity<?> executeAlgorithmOnGivenFile(@RequestParam final Map<String, String> algorithm,
+            @RequestParam("file") final MultipartFile file) {
 
         System.out.println(file);
         if (!AcceptedMediaTypes.contains(file.getContentType()))

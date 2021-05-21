@@ -2,6 +2,7 @@ package pdl.backend.mysqldb;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -19,5 +20,10 @@ public interface ImageRepository extends CrudRepository<Image, Integer> {
 
     @Query(value = "DELETE FROM image i WHERE i.id = :id", nativeQuery = true)
     Boolean deleteImageBoolean(@Param("id") Integer id);
+
+    @Query(value = "SELECT name FROM image i where i.fk_user_id is null", nativeQuery = true)
+    Set<String> publicSet();
+
+    
 
 }

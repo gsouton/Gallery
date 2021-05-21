@@ -2,8 +2,12 @@ package pdl.backend;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.net.URLConnection;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -18,12 +22,17 @@ import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 
-
+import org.scijava.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import ch.qos.logback.classic.pattern.Util;
+import pdl.backend.mysqldb.Image;
+import pdl.backend.mysqldb.ImageRepository;
 
 public final class Utils {
 
@@ -40,7 +49,8 @@ public final class Utils {
     public static Set<String> listFiles(final Path p) throws IOException {
         try (Stream<Path> stream = Files.walk(p)) {
             return stream.map(Path::getFileName).map(Path::toString)
-                    .filter(file -> file.endsWith(".jpeg") || file.endsWith(".tif")).collect(Collectors.toSet());
+                    .filter(file -> file.endsWith(".jpeg") || file.endsWith(".tif") || file.endsWith(".jpg"))
+                    .collect(Collectors.toSet());
         }
     }
 
@@ -59,6 +69,14 @@ public final class Utils {
 
     public static MediaType typeOfFile(final Path p) throws IOException, InvalidMediaTypeException {
         return MediaType.parseMediaType(Files.probeContentType(p));
+    }
+
+    public static void copyInputStreamToFile(InputStream inputStream, File file) throws IOException {
+        try (FileOutputStream outputStream = new FileOutputStream(file)) {
+            byte[] bytes = inputStream.readAllBytes();
+            outputStream.write(bytes);
+
+        }
     }
 
     /**
@@ -80,6 +98,11 @@ public final class Utils {
         final File f = p.toFile();
         return "" + ImageIO.read(f).getWidth() + "*" + ImageIO.read(f).getHeight() + "*"
                 + ImageIO.read(f).getColorModel().getNumComponents();
+    }
+
+    public static String sizeOfImage(final InputStream p) throws IOException {
+        return "" + ImageIO.read(p).getWidth() + "*" + ImageIO.read(p).getHeight() + "*"
+                + ImageIO.read(p).getColorModel().getNumComponents();
     }
 
     /**
@@ -107,6 +130,13 @@ public final class Utils {
         final BufferedImage bufferedImage = ImageIO.read(file.getInputStream());
         return "" + bufferedImage.getWidth() + "*" + bufferedImage.getHeight() + "*"
                 + bufferedImage.getColorModel().getNumComponents();
+    }
+
+    public static String sizeOfImageJar(final Path p) throws IOException {
+        final BufferedImage bufferedImage = ImageIO.read(Files.newInputStream(p));
+        return "" + bufferedImage.getWidth() + "*" + bufferedImage.getHeight() + "*"
+                + bufferedImage.getColorModel().getNumComponents();
+
     }
 
     /**
@@ -141,36 +171,52 @@ public final class Utils {
         throw new IllegalArgumentException("Class must be either int, float, double or long, you gave :" + c.getName());
     }
 
-    
-
-
-    public static void readContent(Path path){
-        try{
+    public static void readContent(Path path, String relativePath, ImageRepository imageRepository) {
+        try {
             Stream<Path> list = Files.list(path);
             List<Path> paths = list.parallel().collect(Collectors.toList());
-            paths.stream().parallel().forEach(filePath -> {
-                if(Files.isDirectory(filePath)){
-                    readContent(filePath);
-                }
-                else{
-                    try{
-                        String fileName = filePath.toString().split("classes")[1];
-                        String content = readFile(filePath);
-                        logger.debug("File :" + fileName + " content: " + content);
+            Set<String> publicImages = imageRepository.publicSet();
+
+            System.err.println("----- Public images : ");
+            for (String string : publicImages) {
+                System.err.println(string);
+            }
+            for (Path p : paths) {
+                logger.warn(p.toString());
+            }
+
+            paths.stream().parallel().forEach(p -> {
+                String fileName = p.toString().split(relativePath)[1];
+                if (!publicImages.contains(fileName))
+                    try {
+                        MediaType type = MediaType.parseMediaType(Files.probeContentType(p));
+                        String size = sizeOfImageJar(p);
+                        Image image = new Image(fileName, Files.readAllBytes(p), type, size);
+                        imageRepository.save(image);
+                        System.out.println(image);
+                    } catch (IOException e) {
+                        logger.warn("Init FAIL: Could not read property of file while loading images on server: "
+                                + fileName);
+                        e.printStackTrace();
                     }
-                    catch (Exception e){
-                        logger.error("Unable to read file " + e.getMessage());
-                    }
-                }
             });
             list.close();
-        }catch(Exception e){
-            logger.error("Unable to read file " + e.getMessage());
+        } catch (IOException e) {
+            logger.error("Could not read property of one file while loading it on server !");
+            e.printStackTrace();
         }
     }
 
-    private static String readFile(Path path) throws IOException{
-        byte[] bytes = Files.readAllBytes(path);
-        return "Read file";
-    }
+    /*
+     * public static void readContent(Path path, ImageRepository imageRepository) {
+     * try { Stream<Path> list = Files.list(path); List<Path> paths =
+     * list.parallel().collect(Collectors.toList());
+     * paths.stream().parallel().forEach(filePath -> { if
+     * (Files.isDirectory(filePath)) { readContent(filePath, imageRepository); }
+     * else { try { String fileName = filePath.toString().split("classes")[1];
+     * logger.debug("File :" + fileName); } catch (Exception e) {
+     * logger.error("Unable to read file " + e.getMessage()); } } }); list.close();
+     * } catch (Exception e) { logger.error(e.getMessage()); } }
+     */
+
 }
