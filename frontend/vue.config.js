@@ -7,22 +7,22 @@ module.exports = {
             '^/images': {
                 target: 'http://gallery-backend:8080',
                 ws: true,
-                changeOrigin: true
+                changeOrigin: true,
             },
             '^/auth': {
                 target: 'http://gallery-backend:8080',
                 ws: true,
-                changeOrigin: true
+                changeOrigin: true,
             },
             '^/api/test': {
                 target: 'http://gallery-backend:8080',
                 ws: true,
-                changeOrigin: true
+                changeOrigin: true,
             },
             '^/user':{
                 target: 'http://gallery-backend:8080',
                 ws: true,
-                changeOrigin: true
+                changeOrigin: true,
             }
         }
     }

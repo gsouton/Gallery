@@ -1,13 +1,9 @@
 package pdl.backend;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 
-import javax.print.attribute.standard.Media;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 import org.springframework.http.MediaType;
 

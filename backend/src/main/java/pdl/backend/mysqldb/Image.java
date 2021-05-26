@@ -1,7 +1,5 @@
 package pdl.backend.mysqldb;
 
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

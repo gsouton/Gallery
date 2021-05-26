@@ -2,7 +2,6 @@ package pdl.backend.controller.requests;
 
 import java.util.Set;
 
-import pdl.backend.mysqldb.Roles;
 
 public class SignupRequest {
     private String firstName;

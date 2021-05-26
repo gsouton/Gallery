@@ -1,25 +1,23 @@
 version: "3.7"
 
+
+
 services:
     #databse service
     mysql-db:
-        image: mysql:8.0.24
-        container_name: gallery_db
+        image: mysql:8.0.25
+        container_name: mysql-db
         environment:
             - MYSQL_ROOT_PASSWORD=root
             - MYSQL_DATABASE=backend_db
             - MYSQL_USER=spring
             - MYSQL_PASSWORD=root
-        #ports:
-        #    - 5432:5432
         restart: always
         networks:
             - mysql_db_network
-        #expose:
-        #    - 5432
 
     #backend
-    backend:
+    gallery-backend:
         build:
             context: ./backend
             target: gallery-application
@@ -27,27 +25,25 @@ services:
         container_name: gallery-backend
         ports:
             - 8080:8080
-        expose: 
-            - 8080
         depends_on:
             - mysql-db
         networks:
-            - frontend_network
+#            - frontend_network
             - mysql_db_network
 
-    frontend:
-      build: ./frontend
-      image: gallery/frontend
-      container_name: gallery-frontend
-      ports:
-          - 8089:8089
-      depends_on:
-          - backend
-      networks:
-          - frontend_network
+    #gallery-frontend:
+    # build: ./frontend
+    # image: gallery/frontend
+    # container_name: gallery-frontend
+    # ports:
+    #     - 8089:8089
+    # depends_on:
+    #     - gallery-backend
+    # networks:
+    #     - frontend_network
 
 networks:
     mysql_db_network:
         driver: bridge
-    frontend_network:
-        driver: bridge
+    #frontend_network:
+    #   driver: bridge
