@@ -235,7 +235,7 @@ public class ImageController {
             String path = splitPath[1].replace("!", "");
             Utils.logger.warn(path);
             Utils.logger.warn(fileSystem.getPath(path).toString());
-            Utils.readContent(fileSystem.getPath(path), relativePath, imageRepository);
+            List<Image> images = Utils.readContent(fileSystem.getPath(path), relativePath, imageRepository.publicSet());
 		} catch (IOException e) {
             Utils.logger.error("Could not initiate FileSystem from uri: " + uri.toString() + " " + e.getMessage());
 			e.printStackTrace();

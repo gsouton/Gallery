@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -161,11 +162,11 @@ public final class Utils {
         throw new IllegalArgumentException("Class must be either int, float, double or long, you gave :" + c.getName());
     }
 
-    public static void readContent(Path path, String relativePath, ImageRepository imageRepository) {
+    public static List<Image> readContent(Path path, String relativePath, Set<String> publicImages) {
+        List<Image> images = new ArrayList<>();
         try {
             Stream<Path> list = Files.list(path);
             List<Path> paths = list.parallel().collect(Collectors.toList());
-            Set<String> publicImages = imageRepository.publicSet();
 
             System.err.println("----- Public images : ");
             for (String string : publicImages) {
@@ -182,8 +183,8 @@ public final class Utils {
                         MediaType type = MediaType.parseMediaType(Files.probeContentType(p));
                         String size = sizeOfImageJar(p);
                         Image image = new Image(fileName, Files.readAllBytes(p), type, size);
-                        imageRepository.save(image);
                         System.out.println(image);
+                        images.add(image);
                     } catch (IOException e) {
                         logger.warn("Init FAIL: Could not read property of file while loading images on server: "
                                 + fileName);
@@ -195,6 +196,8 @@ public final class Utils {
             logger.error("Could not read property of one file while loading it on server !");
             e.printStackTrace();
         }
+        return images;
+
     }
 
     /*

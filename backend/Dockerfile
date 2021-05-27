@@ -1,11 +1,16 @@
 FROM maven:3.6.0-jdk-11-slim as build
 
+COPY ./wait-for-it.sh wait-for-it.sh
+RUN chmod +x wait-for-it.sh
+
 COPY pom.xml /home/app/backend/
 
 RUN mvn -f /home/app/backend/pom.xml dependency:go-offline -B
 
 
 COPY src /home/app/backend/src
+
+RUN rm -rf /home/app/backend/src/test
 
 RUN mvn -f /home/app/backend/pom.xml  package -DskipTests
 
@@ -15,4 +20,5 @@ COPY --from=build /home/app/backend/target/backend-0.0.1-SNAPSHOT.jar /usr/local
 
 EXPOSE 8080
 
-ENTRYPOINT [ "java", "-jar", "/usr/local/lib/gallery.jar" ]
+#ENTRYPOINT [ "java", "-jar", "/usr/local/lib/gallery.jar" ]
+

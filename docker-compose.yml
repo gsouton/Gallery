@@ -27,6 +27,7 @@ services:
             - 8080:8080
         depends_on:
             - mysql-db
+        command: ["./wait-for-it.sh", "mysql-db:3360", "--", "echo MYSQL Databse is up !", "&&", "java", "-jar", "/usr/local/lib/gallery.jar"]
         networks:
 #            - frontend_network
             - mysql_db_network
