@@ -236,6 +236,7 @@ public class ImageController {
             Utils.logger.warn(path);
             Utils.logger.warn(fileSystem.getPath(path).toString());
             List<Image> images = Utils.readContent(fileSystem.getPath(path), relativePath, imageRepository.publicSet());
+            images.forEach(image -> imageRepository.save(image));
 		} catch (IOException e) {
             Utils.logger.error("Could not initiate FileSystem from uri: " + uri.toString() + " " + e.getMessage());
 			e.printStackTrace();

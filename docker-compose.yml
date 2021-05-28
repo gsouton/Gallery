@@ -1,7 +1,5 @@
 version: "3.7"
 
-
-
 services:
     #databse service
     mysql-db:
@@ -27,24 +25,23 @@ services:
             - 8080:8080
         depends_on:
             - mysql-db
-        command: ["./wait-for-it.sh", "mysql-db:3360", "--", "echo MYSQL Databse is up !", "&&", "java", "-jar", "/usr/local/lib/gallery.jar"]
         networks:
-#            - frontend_network
+            - frontend_network
             - mysql_db_network
 
-    #gallery-frontend:
-    # build: ./frontend
-    # image: gallery/frontend
-    # container_name: gallery-frontend
-    # ports:
-    #     - 8089:8089
-    # depends_on:
-    #     - gallery-backend
-    # networks:
-    #     - frontend_network
+    gallery-frontend:
+        build: ./frontend
+        image: gallery/frontend
+        container_name: gallery-frontend
+        ports:
+            - 8089:8089
+        depends_on:
+            - gallery-backend
+        networks:
+            - frontend_network
 
 networks:
     mysql_db_network:
         driver: bridge
-    #frontend_network:
-    #   driver: bridge
+    frontend_network:
+        driver: bridge
