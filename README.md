@@ -1,156 +1,68 @@
 # Projet Gallery
 
-Projet hébergé sur [GitHub](https://github.com/bastiensoucasse/gallery), avec un
-miroir sur le [GitLab](https://gitlab.emi.u-bordeaux.fr/bsoucasse/gallery) de
-l'Université de Bordeaux (CREMI).
+University, project where we had to develop an application, that let you store images and apply filter to them.
+The backend follow the REST API implemented with Spring Framework,
+The database used to store images, and users is MySQL.
+The frontend is using Vue 3.
 
-## Prérequis
+## Build
+To build this project you can use Docker
+To be able to use Docker if not already installed you need to:
 
-### MySQL
+1. [Install Docker](https://docs.docker.com/get-docker/)
+2. [If not installed docker-compose](https://docs.docker.com/compose/install/)
 
-Le projet nécessite une base de données MySQL. Veuillez donc installer MySQL
-avant de poursuivre si ce n'est pas déjà le cas. Si vous ne savez pas, vous
-pouvez vérifier en entrant la commande suivante.
-
+#### Build with docker-compose
+To build the project in the root of the project (where the docker-compose.yml is located)
+To build the project:
 ```bash
-mysql -V
+docker-compose build
 ```
-
-Si une version de MySQL est affichée, vous pouvez passer à [l'installation du
-projet](#installation-automatique). Sinon il faut installer MySQL. Pour un
-système Debian ou basé sur Debian (par exemple Ubuntu), les paquets requis sont
-présents sur les dépôts système. Il suffit d'entrer la commande suivante pour
-lancer l'installation.
-
+Then to run the application:
 ```bash
-sudo apt install mysql-server mysql-client
+docker-compoes up
 ```
 
-Si vous êtes sous un autre système, référez-vous à la documentation de celui-ci.
+If everything executed correctly you can now use the browser to connect to [http://localhost:8089](http://localhost:8089)
 
-Vous pouvez vous aider de la [documentation de MySQL](https://dev.mysql.com/doc/refman/8.0/en/installing.html).
+## Application
+This application is an image gallery where you can store your images and apply different filters to them.
+A simple authentifcation system using JWT is implemented, allowing you to authentificate.
 
-## Installation automatique
+Each user then own their own gallery on the server.
 
-Pour installer et lancer la galerie, il suffit d'utiliser le script bash dédié,
-depuis la racine du projet.
+When connecting to the application while not authentificated it's possible to test some functionality of the server,
+* Apply algorithms to images.
+* Download images.
 
-```bash
-./run.sh
-```
+To be able able to use the application completly you need to authentificate: Create an account and log in.
+Once logged in you are able to :
+* Add your own images.
+* Delete images.
+* Apply algorithms and save those images.
 
-Ce script va procéder aux vérifications de votre système afin d'installer et de
-lancer le projet comme il le faut pour votre machine. Pour clore le serveur,
-il suffira d'appuyer sur la touche q. NE PAS UTILISEZ ctrl+C
 
-**NB :** Lorsque le message `Gallery project launched. Check logs in the logs
-folder.` apparaît, il se peut que vous deviez patienter encore quelques secondes
-avant de pouvoir accéder à l'application. Le serveur a été mis en route, mais
-il peut prendre quelques secondes avant d'être effectif. Vous pouvez vérifier
-cela dans les logs du backend, dans le fichier `logs/backend.log`.
+## Backend
+The backend end server implement a REST API, allowing the user to make request to perform different operations.
+JWT is used to authenticate users.
 
-Si vous relancez le projet, vous pourrez également choisir de réaliser une
-nouvelle installation complète (en réinstallant les dépendances) en utilisant
-l'option `--build`, également abrégée en `-b`, ou encore de réinitialiser la
-base de données à ses valeurs par défaut grâce à l'option `--reset` ou `-r`. Il
-est aussi possible de combiner les options.
 
-Vous pouvez avoir accès à la liste des options en tapant la commande d'aide.
 
-```bash
-./run.sh --help
-```
+## MySQL
 
-## Installation manuelle
+The project is using MySQL to store, images and users.
+You can retrieve or store images using the REST API,
+The database follow a simple implementation that can be found on this diagram.
 
-**Attention :** Nous vous recommandons de passer par l'installation automatique
-afin d'être sûr que le serveur est correctement installé et lancé selon les
-paramètres de votre machine.
+[Diagram (In a browser)](https://drawsql.app/pdl/diagrams/pdl/embed)
 
-### Initialisation de la base de données
+## Notes
+Some aspect are not optimised or polished due to the time limit of the project.
 
-Assurez-vous que votre serveur de base de donées MySQL est bien démarré. Si ce
-n'est pas le cas, entrez la commande suivante pour le démarrer.
+## Authors
 
-```bash
-sudo service mysql start
-```
+**Gilles Souton**
+**Bastien Soucasse** https://github.com/bastiensoucasse
+**Tony Wolff** https://github.com/tony-wolff
 
-Vous pouvez également utiliser cette commande si la précédente venait à ne pas
-fonctionner.
 
-```bash
-# Si la commande précédente n'a pas fonctionné
-sudo /etc/init.d/mysql start
-```
-
-Rendez vous dans le client de MySQL depuis le répertoire racine du projet.
-
-``` bash
-sudo mysql
-```
-
-Si vous souhaitez réinitialiser la base de données, entrez cette commande.
-Sinon vous pouvez directement passer à la commande suivante.
-
-```sql
--- Si vous souhaitez réinitialiser la base de données
-source database/db_reset.sql;
-```
-
-Exécutez le script d'initialisation de la base de données.
-
-```sql
-source database/db_init.sql;
-```
-
-Vous pouvez quitter le client MySQL.
-
-```sql
-quit;
-```
-
-### Installation du projet
-
-Dans le répertoire racine du projet, executer les commandes suivantes.
-
-- Installation des dépendances s'il s'agit du premier lancement ou d'une
-réinstallation.
-
-```bash
-# S'il s'agit de la première installation ou d'une réinstallation
-mvn clean install
-```
-
-- Installation du backend.
-
-```bash
-mvn --projects backend spring-boot:run
-```
-
-- Installation du frontend (le backend ayant pris le contrôle du terminal, il
-faudra en ouvrir un nouveau toujours à la racine du projet).
-
-```bash
-cd frontend && npm run serve
-```
-
-## Accès à l'application
-
-Connectez-vous à [http://localhost:8089](http://localhost:8089) via votre
-navigateur afin d'accéder à la galerie.
-
-## Informations supplémentaires
-
-### Tests
-
-Le serveur a été testé sur les configurations suivantes.
-
-**Systèmes :** Ubuntu 20.04 et 20.10 (via WSL2 sur Windows 10 20H2) et Debian 10
-(Buster).\
-**Navigateurs :** Google Chrome, Microsoft Edge et Mozilla Firefox.
-
-### Base de données
-
-Voici un diagramme explicatif de l'implémentation de la base de données.\
-[Visualiser dans un navigateur](https://drawsql.app/pdl/diagrams/pdl/embed)
