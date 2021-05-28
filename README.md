@@ -61,8 +61,8 @@ Some aspect are not optimised or polished due to the time limit of the project.
 
 ## Authors
 
-**Gilles Souton**
-**Bastien Soucasse** https://github.com/bastiensoucasse
-**Tony Wolff** https://github.com/tony-wolff
+* **Gilles Souton**
+* **Bastien Soucasse** https://github.com/bastiensoucasse
+* **Tony Wolff** https://github.com/tony-wolff
 
 
