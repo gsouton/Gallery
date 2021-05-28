@@ -20,7 +20,7 @@ docker-compose build
 ```
 Then to run the application:
 ```bash
-docker-compoes up
+docker-compose up
 ```
 
 If everything executed correctly you can now use the browser to connect to [http://localhost:8089](http://localhost:8089)
@@ -29,7 +29,7 @@ If everything executed correctly you can now use the browser to connect to [http
 This application is an image gallery where you can store your images and apply different filters to them.
 A simple authentication system using JWT is implemented, allowing you to authenticate.
 
-Each user then own their own gallery on the server.
+Each user then own their gallery on the server.
 
 When connecting to the application while not authenticated it's possible to test some functionality of the server,
 * Apply algorithms to images.
