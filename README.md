@@ -20,22 +20,22 @@ docker-compose build
 ```
 Then to run the application:
 ```bash
-docker-compoes up
+docker-compose up
 ```
 
 If everything executed correctly you can now use the browser to connect to [http://localhost:8089](http://localhost:8089)
 
 ## Application
 This application is an image gallery where you can store your images and apply different filters to them.
-A simple authentifcation system using JWT is implemented, allowing you to authentificate.
+A simple authentication system using JWT is implemented, allowing you to authenticate.
 
-Each user then own their own gallery on the server.
+Each user then own their gallery on the server.
 
-When connecting to the application while not authentificated it's possible to test some functionality of the server,
+When connecting to the application while not authenticated it's possible to test some functionality of the server,
 * Apply algorithms to images.
 * Download images.
 
-To be able able to use the application completly you need to authentificate: Create an account and log in.
+To be able able to use the application completely you need to authenticate: Create an account and log in.
 Once logged in you are able to :
 * Add your own images.
 * Delete images.
@@ -57,12 +57,10 @@ The database follow a simple implementation that can be found on this diagram.
 [Diagram (In a browser)](https://drawsql.app/pdl/diagrams/pdl/embed)
 
 ## Notes
-Some aspect are not optimised or polished due to the time limit of the project.
+Some aspect are not optimized or polished due to the time limit of the project.
 
 ## Authors
 
-**Gilles Souton**
-**Bastien Soucasse** https://github.com/bastiensoucasse
-**Tony Wolff** https://github.com/tony-wolff
-
-
+* **Gilles Souton**
+* **Bastien Soucasse** https://github.com/bastiensoucasse
+* **Tony Wolff** https://github.com/tony-wolff
